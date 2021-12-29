@@ -1,5 +1,11 @@
+from starlette.requests import Request
+
+from data.user import User
 from viewmodels.shared.viewmodel import ViewModelBase
 
 
 class AccountViewModel(ViewModelBase):
-    pass
+
+    def __init__(self, request: Request):
+        super().__init__(request)
+        self.user = User("Eldan", "eldan@gmail.com", "112233aa")
