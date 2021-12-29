@@ -1,23 +1,41 @@
+import datetime
+from typing import List
 
-class Package:
+import sqlalchemy as sa
+import sqlalchemy.orm as orm
+from data.modelbase import SqlAlchemyBase
+from data.release import Release
 
-    def __init__(self,
-                 package_name: str,
-                 summary: str,
-                 description: str,
-                 home_page: str,
-                 license: str,
-                 author_name: str,
-                 maintainers: list = None,
-                 ):
-        if maintainers is None:
-            maintainers = []
 
-        self.home_page = home_page
-        self.package_name = package_name
-        self.id = package_name
-        self.summary = summary
-        self.description = description
-        self.license = license
-        self.author_name = author_name
-        self.maintainers = maintainers
+class Package(SqlAlchemyBase):
+    __tablename__ = 'packages'
+
+    id: str = sa.Column(sa.String, primary_key=True)
+    created_date: datetime.datetime = sa.Column(sa.DateTime,
+                                                default=datetime.datetime.now,
+                                                index=True)
+    last_updated: datetime.datetime = sa.Column(sa.DateTime,
+                                                default=datetime.datetime.now,
+                                                index=True)
+    summary: str = sa.Column(sa.String, nullable=False)
+    description: str = sa.Column(sa.String, nullable=True)
+
+    home_page: str = sa.Column(sa.String)
+    docs_url: str = sa.Column(sa.String)
+    package_url: str = sa.Column(sa.String)
+
+    author_name: str = sa.Column(sa.String)
+    author_email: str = sa.Column(sa.String, index=True)
+
+    license: str = sa.Column(sa.String, index=True)
+
+    # releases relationship
+    releases: List[Release] = orm.relationship("Release", order_by=[
+        Release.major_ver.desc(),
+        Release.minor_ver.desc(),
+        Release.build_ver.desc(),
+    ], back_populates='package')
+
+    def __repr__(self):
+        return f"<Package {self.id}>"
+
