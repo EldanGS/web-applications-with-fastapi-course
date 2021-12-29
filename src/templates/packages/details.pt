@@ -97,10 +97,10 @@
 
 
                         <h3>Maintainers</h3>
-                        <div class="maintainer" tal:repeat="m maintainers">
-                            <img src="${ m.profile_image_url }" alt="">
-                            <a href="#">${ m.name }</a>
-                        </div>
+<!--?                        <div class="maintainer" tal:repeat="m maintainers">-->
+<!--?                            <img src="${ m.profile_image_url }" alt="">-->
+<!--?                            <a href="#">${ m.name }</a>-->
+<!--?                        </div>-->
                         <hr>
                         <h3>License</h3>
                         <div class="license">
