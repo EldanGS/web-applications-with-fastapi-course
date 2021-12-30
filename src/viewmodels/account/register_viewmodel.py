@@ -26,5 +26,5 @@ class RegisterViewModel(ViewModelBase):
             self.error = "Your email is required"
         elif not self.password or len(self.password.strip()) < 5:
             self.error = "Your password is required and must be at least 5 characters"
-        elif user_service.get_user_by_email(self.email):
+        elif await user_service.get_user_by_email(self.email):
             self.error = f"That email: {self.email} is already used."
