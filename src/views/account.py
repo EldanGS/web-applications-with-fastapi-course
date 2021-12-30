@@ -14,8 +14,9 @@ router = fastapi.APIRouter()
 
 @router.get('/account')
 @template()
-def index(request: Request):
+async def index(request: Request):
     vm = AccountViewModel(request)
+    await vm.load()
     return vm.to_dict()
 
 
@@ -35,7 +36,7 @@ async def register(request: Request):
     if vm.error:
         return vm.to_dict()
 
-    account = user_service.create_account(vm.name, vm.email, vm.password)
+    account = await user_service.create_account(vm.name, vm.email, vm.password)
 
     # redirect
     response = fastapi.responses.RedirectResponse(url="/account",
@@ -56,19 +57,19 @@ def login_get(request: Request):
 @router.post('/account/login')
 @template(template_file='account/login.pt')
 async def login_post(request: Request):
-
     vm = LoginViewModel(request)
     await vm.load()
 
     if vm.error:
         return vm.to_dict()
 
-    user = user_service.login_user(vm.email, vm.password)
+    user = await user_service.login_user(vm.email, vm.password)
     if not user:
         vm.error = "The account does not exist or the password is wrong."
         return vm.to_dict()
 
-    response = fastapi.responses.RedirectResponse('/account', status_code=status.HTTP_302_FOUND)
+    response = fastapi.responses.RedirectResponse('/account',
+                                                  status_code=status.HTTP_302_FOUND)
     cookie_auth.set_auth(response, user.id)
 
     return response

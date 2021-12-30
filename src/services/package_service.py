@@ -1,6 +1,8 @@
 import datetime
 from typing import Optional, List
 
+from sqlalchemy import func
+from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 
 from data.package import Package
@@ -8,35 +10,49 @@ from data.release import Release
 from data import db_session
 
 
-def release_count() -> int:
-    with db_session.create_session() as session:
-        return session.query(Release).count()
+async def release_count() -> int:
+    async with db_session.create_async_session() as session:
+        query = select(func.count(Release.id))
+        result = await session.execute(query)
+    return result.scalar()
 
 
-def package_count() -> int:
-    with db_session.create_session() as session:
-        return session.query(Package).count()
+async def package_count() -> int:
+    async with db_session.create_async_session() as session:
+        query = select(func.count(Package.id))
+        result = await session.execute(query)
+        return result.scalar()
 
 
-def latest_packages(limit: int = 5) -> List[Package]:
-    with db_session.create_session() as session:
-        releases = session.query(Release).options(
+async def latest_packages(limit: int = 5) -> List[Package]:
+    async with db_session.create_async_session() as session:
+        query = select(Release).options(
             joinedload(Release.package)
-        ).order_by(Release.created_date.desc()).limit(limit).all()
+        ).order_by(Release.created_date.desc()).limit(limit)
+        result = await session.execute(query)
+        releases = result.scalars()
 
         return [r.package for r in releases]
 
 
-def get_package_by_id(package_name: str) -> Optional[Package]:
-    with db_session.create_session() as session:
-        package = session.query(Package).filter(Package.id == package_name).first()
+async def get_package_by_id(package_name: str) -> Optional[Package]:
+    async with db_session.create_async_session() as session:
+        query = select(Package).filter(Package.id == package_name)
+
+        result = await session.execute(query)
+        package = result.scalar_one_or_none()
+
         return package
 
 
-def get_latest_release_for_package(package_name: str) -> Optional[Release]:
-    with db_session.create_session() as session:
-        release = session.query(Release).filter(
+async def get_latest_release_for_package(package_name: str) -> Optional[
+    Release]:
+    async with db_session.create_async_session() as session:
+        query = select(Release).filter(
             Release.package_id == package_name
-        ).order_by(Release.created_date.desc()).first()
+        ).order_by(Release.created_date.desc())
+
+        result = await session.execute(query)
+        release = result.scalar()
 
         return release
