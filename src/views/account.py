@@ -12,7 +12,7 @@ from viewmodels.account.register_viewmodel import RegisterViewModel
 router = fastapi.APIRouter()
 
 
-@router.get('/account')
+@router.get('/account', include_in_schema=False)
 @template()
 async def index(request: Request):
     vm = AccountViewModel(request)
@@ -20,14 +20,14 @@ async def index(request: Request):
     return vm.to_dict()
 
 
-@router.get('/account/register')
+@router.get('/account/register', include_in_schema=False)
 @template()
 def register(request: Request):
     vm = RegisterViewModel(request)
     return vm.to_dict()
 
 
-@router.post('/account/register')
+@router.post('/account/register', include_in_schema=False)
 @template()
 async def register(request: Request):
     vm = RegisterViewModel(request)
@@ -47,14 +47,14 @@ async def register(request: Request):
 
 ### LOGIN
 
-@router.get('/account/login')
+@router.get('/account/login', include_in_schema=False)
 @template(template_file='account/login.pt')
 def login_get(request: Request):
     vm = LoginViewModel(request)
     return vm.to_dict()
 
 
-@router.post('/account/login')
+@router.post('/account/login', include_in_schema=False)
 @template(template_file='account/login.pt')
 async def login_post(request: Request):
     vm = LoginViewModel(request)
@@ -75,7 +75,7 @@ async def login_post(request: Request):
     return response
 
 
-@router.get('/account/logout')
+@router.get('/account/logout', include_in_schema=False)
 def logout(request: Request):
     response = fastapi.responses.RedirectResponse(url="/",
                                                   status_code=status.HTTP_302_FOUND)
